@@ -1,0 +1,116 @@
+/* ---- Connexion.css ---- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ----- CONTAINER PRINCIPAL ----- */
+.connexion-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f5f6fa;
+}
+
+/* ----- SECTION GAUCHE : IMAGE RESTAURANT ----- */
+.connexion-image {
+  flex: 1;
+  background: url("https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1600&q=80")
+    no-repeat center center/cover;
+  position: relative;
+}
+
+.connexion-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ----- SECTION DROITE : FORMULAIRE ----- */
+.connexion-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  background: white;
+}
+
+.connexion-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 40px 35px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.7s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.connexion-card h3 {
+  text-align: center;
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+.connexion-card label {
+  font-weight: 500;
+  color: #34495e;
+}
+
+.connexion-card input {
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #ccd6e0;
+  transition: all 0.2s ease-in-out;
+}
+
+.connexion-card input:focus {
+  border-color: #6b9bd1;
+  box-shadow: 0 0 5px rgba(107, 155, 209, 0.4);
+}
+
+.connexion-btn {
+  background-color: #6b9bd1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.connexion-btn:hover {
+  background-color: #5b8bc2;
+  transform: translateY(-1px);
+}
+
+.message {
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 500;
+  color: #2c3e50;
+}
