@@ -1,0 +1,10 @@
+import React from "react";
+
+export default function Section({ title }) {
+  return (
+    <div className="bg-white rounded-4 p-4 shadow-sm">
+      <h5 className="mb-1">{title}</h5>
+      <p className="text-muted m-0">Contenu {title?.toLowerCase?.() || title}.</p>
+    </div>
+  );
+}

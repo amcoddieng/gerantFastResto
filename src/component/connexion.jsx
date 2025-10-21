@@ -14,7 +14,8 @@ export default function Connexion() {
     if (result.token) {
       setMessage("Connexion réussie !");
       localStorage.setItem("token", result.token);
-      // window.location.href = "/dashboard";
+      // Notifier l'application qu'on est connecté
+      window.dispatchEvent(new Event("login-success"));
     } else {
       setMessage(result);
     }

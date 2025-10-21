@@ -2,11 +2,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 
-export default function Sidebar() {
+export default function Sidebar({ activeKey = "overview", onSelect = () => {} }) {
   return (
     <div
       className="bg-white shadow-sm d-flex flex-column justify-content-between"
-      style={{ width: "260px" }}
+      style={{ width: "260px", minHeight: "100vh" }}
     >
       <div>
         {/* Logo */}
@@ -15,7 +15,8 @@ export default function Sidebar() {
             className="bg-warning rounded-3 me-2"
             style={{ width: "32px", height: "32px" }}
           ></div>
-          <h4 className="fw-bold m-0 text-dark">FastResto</h4>
+          {/* <h4 className="fw-bold m-0 text-dark">FastResto</h4> */}
+          <img src="../../public/WhatsApp Image 2025-10-20 at 17.05.35_a7d0d7ad.jpg" height={50} width={100}/>
         </div>
 
         {/* Menu principal */}
@@ -25,21 +26,59 @@ export default function Sidebar() {
           </p>
           <ul className="nav flex-column">
             <li className="nav-item">
-              <a className="nav-link active bg-light fw-semibold ps-4 text-primary">
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "overview" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("overview")}
+              >
                 Vue d’ensemble
-              </a>
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Plats</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "plats" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("plats")}
+              >
+                Plats
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Tables</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "tables" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("tables")}
+              >
+                Tables
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Commandes</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "commandes" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("commandes")}
+              >
+                Commandes
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Messages</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "messages" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("messages")}
+              >
+                Messages
+              </button>
             </li>
           </ul>
 
@@ -48,10 +87,26 @@ export default function Sidebar() {
           </p>
           <ul className="nav flex-column mb-4">
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Notifications</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "notifications" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("notifications")}
+              >
+                Notifications
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link ps-4 text-dark">Paramètres</a>
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "settings" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                }`}
+                onClick={() => onSelect("settings")}
+              >
+                Paramètres
+              </button>
             </li>
           </ul>
         </div>
