@@ -3,7 +3,7 @@ import axios from "axios";
 
 const api_connexion_agent = import.meta.env.VITE_url_api;
 
-    console.log("dieng ",api_connexion_agent)
+    // console.log("dieng ",api_connexion_agent)
 export const connect = async (email, motDePasse) => {
   try {
     const response = await axios.post(`${api_connexion_agent}/auth/login`, {

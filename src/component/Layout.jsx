@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import Sidebar from "./Menu.jsx";
 import Overview from "../views/Overview.tsx";
-import Plats from "../views/Plats.tsx";
-import Tables from "../views/Tables.tsx";
+import Plats from "../views/Plats.jsx";
+import Tables from "../views/Tables.jsx";
 import Messages from "../views/Messages.tsx";
 import Notifications from "../views/Notifications.tsx";
 import Settings from "../views/Settings.tsx";
 import Commandes from "../views/Commandes.tsx";
+import { getMe } from "../services/api_users.jsx";
 
 export default function Layout() {
   const [activeKey, setActiveKey] = useState("overview");
@@ -46,6 +47,7 @@ export default function Layout() {
 
 function Header() {
   const [open, setOpen] = useState(false);
+  const [me, setMe] = useState(null);
 
   const handleLogout = () => {
     try {
@@ -55,11 +57,28 @@ function Header() {
     setOpen(false);
   };
 
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const u = await getMe();
+        if (mounted) setMe(u);
+      } catch (e) {
+        // Ne déconnecte que si non autorisé; sinon, on ignore l'erreur de profil
+        if (e === "Unauthorized" || (e && e.status === 401)) {
+          try { localStorage.removeItem("token"); } catch (_) {}
+          window.dispatchEvent(new Event("logout"));
+        }
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <header className="bg-white d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
       <div>
         <h4 className="m-0 fw-bold">Aperçu</h4>
-        <small className="text-muted">Bonjour Amadou, bienvenue !</small>
+        <small className="text-muted">Bonjour {me?.nom || ""}{!me?.nom ? "" : ","} bienvenue{me?.role ? ` • ${me.role}` : ""} !</small>
       </div>
       <div className="d-flex align-items-center gap-3 position-relative">
         <input className="form-control" placeholder="Rechercher" style={{ width: 260 }} />

@@ -20,6 +20,6 @@ export default function AppShell() {
       window.removeEventListener("storage", onStorage);
     };
   }, []);
-console.log("authenticated", authenticated);
+// console.log("authenticated", authenticated);
   return authenticated ? <Layout /> : <Connexion />;
 }
