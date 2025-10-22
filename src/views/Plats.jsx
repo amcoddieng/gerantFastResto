@@ -99,7 +99,14 @@ export default function Plats() {
         <div className="row">
           {plats.map((plat) => (
             <div key={plat._id} className="col-sm-6 col-lg-4 mb-4">
-              <div className="card h-100 shadow-sm border-0">
+              <div
+                className="card h-100 shadow-sm border-0"
+                role="button"
+                style={{ cursor: "pointer" }}
+                data-bs-toggle="modal"
+                data-bs-target="#modalPlatDetails"
+                onClick={() => { window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }}
+              >
                 {plat.image ? (
                   <img
                     src={plat.image}
@@ -129,14 +136,6 @@ export default function Plats() {
                     <span className={`badge ${plat.disponible ? "text-bg-success" : "text-bg-danger"}`}>
                       {plat.disponible ? "Disponible" : "Indisponible"}
                     </span>
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalPlatDetails"
-                      onClick={() => { window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }}
-                    >
-                      Détails
-                    </button>
                   </div>
                 </div>
               </div>

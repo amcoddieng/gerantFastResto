@@ -77,7 +77,7 @@ function Header() {
   return (
     <header className="bg-white d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
       <div>
-        <h4 className="m-0 fw-bold">Aperçu</h4>
+        <h4 className="m-0 fw-bold">Gerant Fast Resto</h4>
         <small className="text-muted">Bonjour {me?.nom || ""}{!me?.nom ? "" : ","} bienvenue{me?.role ? ` • ${me.role}` : ""} !</small>
       </div>
       <div className="d-flex align-items-center gap-3 position-relative">
