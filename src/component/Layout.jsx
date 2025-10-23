@@ -5,7 +5,7 @@ import Plats from "../views/Plats.jsx";
 import Tables from "../views/Tables.jsx";
 import Messages from "../views/Messages.tsx";
 import Notifications from "../views/Notifications.tsx";
-import Settings from "../views/Settings.tsx";
+import Settings from "../views/Settings.jsx";
 import Commandes from "../views/Commandes.tsx";
 import { getMe } from "../services/api_users.jsx";
 
@@ -34,7 +34,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh",width:"95vw", background: "#f7f7fb" }}>
+    <div className="d-flex" style={{ minHeight: "100vh",width:"100vw", background: "#000000" }}>
       <Sidebar activeKey={activeKey} onSelect={setActiveKey} />
 
       <div className="flex-grow-1">
@@ -75,7 +75,7 @@ function Header() {
   }, []);
 
   return (
-    <header className="bg-white d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
+    <header className="bg-dark d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
       <div>
         <h4 className="m-0 fw-bold">Gerant Fast Resto</h4>
         <small className="text-muted">Bonjour {me?.nom || ""}{!me?.nom ? "" : ","} bienvenue{me?.role ? ` • ${me.role}` : ""} !</small>
@@ -83,20 +83,32 @@ function Header() {
       <div className="d-flex align-items-center gap-3 position-relative">
         <input className="form-control" placeholder="Rechercher" style={{ width: 260 }} />
         <div className="d-flex align-items-center">
-          <span className="badge text-bg-light me-3">🛒</span>
+          {/* <span className="badge text-bg-light me-3">🛒</span> */}
           <button
             type="button"
             aria-label="Profil"
             className="btn p-0 border-0 bg-transparent"
             onClick={() => setOpen((v) => !v)}
           >
-            <img src="https://i.pravatar.cc/40" alt="avatar" className="rounded-circle" />
+            {/* console.log(me.photo) */}
+            
+            <img
+              src={`http://192.168.1.13:4000${me?.photo}`}
+              alt="avatar"
+              height={40}
+              width={40}
+              className="rounded-circle"
+              // onError={(e) => {
+              //   e.currentTarget.onerror = null;
+              //   e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(me?.nom || "U")}`;
+              // }}
+            />
           </button>
         </div>
 
         {open && (
           <div
-            className="position-absolute end-0 mt-2 bg-white border rounded-3 shadow-sm"
+            className="position-absolute end-0 mt-2 bg-dark border rounded-3 shadow-sm"
             style={{ top: "100%", minWidth: 180 }}
           >
             <button className="dropdown-item w-100 text-start py-2" onClick={handleLogout}>

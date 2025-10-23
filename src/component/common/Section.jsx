@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Section({ title, children }) {
   return (
-    <div className="bg-white rounded-4 p-4 shadow-sm">
+    <div className="bg-dark rounded-4 p-4 shadow-sm">
       <h5 className="mb-3">{title}</h5>
       {children ? (
         children
