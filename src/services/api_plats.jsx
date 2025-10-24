@@ -43,9 +43,33 @@ export const getPlat = async (id) => {
 
 export const updatePlat = async (id, payload) => {
     try {
+        const token = localStorage.getItem("token");
+        const maybeFile = payload?.imageFile || payload?.image;
+
+        // If an image File/Blob is provided, send as multipart/form-data
+        if (maybeFile && (maybeFile instanceof File || maybeFile instanceof Blob)) {
+            const formData = new FormData();
+            Object.entries(payload || {}).forEach(([k, v]) => {
+                if (k === 'imageFile') return; // send under 'image'
+                if (v === undefined || v === null) return;
+                if (v instanceof File || v instanceof Blob) return; // handled below
+                formData.append(k, v);
+            });
+            formData.append('image', maybeFile);
+
+            const response = await axios.put(`${api_plats}/plats/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        }
+
+        // Fallback: JSON payload
         const response = await axios.put(`${api_plats}/plats/${id}`, payload, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         return response.data;

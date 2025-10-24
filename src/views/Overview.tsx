@@ -86,13 +86,13 @@ export default function Overview() {
   }, []);
 
   const Card = ({ title, value, accent }: { title: string; value: React.ReactNode; accent: string }) => (
-    <div className="bg-white rounded-4 p-3 shadow-sm border" style={{ borderColor: accent }}>
+    <div className="card rounded-4 p-3 shadow-sm">
       <div className="d-flex justify-content-between align-items-center">
         <div>
           <div className="text-muted" style={{ fontSize: 13 }}>{title}</div>
           <div className="fw-bold" style={{ fontSize: 24 }}>{value}</div>
         </div>
-        <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 44, height: 44, background: accent, color: "#fff" }}>
+        <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 44, height: 44, background: accent, color: '#fff' }}>
           •
         </div>
       </div>

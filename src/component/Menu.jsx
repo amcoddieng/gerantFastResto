@@ -5,14 +5,14 @@ import React from "react";
 export default function Sidebar({ activeKey = "overview", onSelect = () => {} }) {
   return (
     <div
-      className="bg-white shadow-sm d-flex flex-column justify-content-between"
+      className="bg-dark shadow-sm d-flex flex-column justify-content-between"
       style={{ width: "260px", minHeight: "100vh" }}
     >
       <div>
         {/* Logo */}
         <div className="p-4 border-bottom d-flex align-items-center">
           <div
-            className="bg-warning rounded-3 me-2"
+            className="bg-primary rounded-3 me-2"
             style={{ width: "32px", height: "32px" }}
           ></div>
           {/* <h4 className="fw-bold m-0 text-dark">FastResto</h4> */}
@@ -21,7 +21,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
 
         {/* Menu principal */}
         <div className="mt-3">
-          <p className="text-muted text-uppercase px-4 small fw-bold">
+          <p className="text-white text-uppercase px-4 small fw-bold">
             Main Menu
           </p>
           <ul className="nav flex-column">
@@ -29,7 +29,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "overview" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "overview" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("overview")}
               >
@@ -40,7 +40,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "plats" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "plats" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("plats")}
               >
@@ -51,7 +51,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "tables" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "tables" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("tables")}
               >
@@ -62,7 +62,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "commandes" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "commandes" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("commandes")}
               >
@@ -73,7 +73,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "messages" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "messages" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("messages")}
               >
@@ -82,7 +82,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
             </li>
           </ul>
 
-          <p className="text-muted text-uppercase px-4 small fw-bold mt-4">
+          <p className="text-white text-uppercase px-4 small fw-bold mt-4">
             Others
           </p>
           <ul className="nav flex-column mb-4">
@@ -90,7 +90,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "notifications" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "notifications" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("notifications")}
               >
@@ -101,7 +101,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "settings" ? "active bg-light fw-semibold text-primary" : "text-dark"
+                  activeKey === "settings" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("settings")}
               >

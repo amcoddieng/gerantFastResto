@@ -1,8 +1,8 @@
 import React from "react";
 
-export default function Section({ title, children }) {
+export default function Section({ title, children, style = {}, className = "" }) {
   return (
-    <div className="bg-dark rounded-4 p-4 shadow-sm">
+    <div className={`bg-dark rounded-4 p-4 shadow-sm ${className}`} style={style}>
       <h5 className="mb-3">{title}</h5>
       {children ? (
         children

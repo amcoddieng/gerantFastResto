@@ -17,10 +17,12 @@
 
 a {
   font-weight: 500;
-  color: var(--brand);
+  color: var(--white) !important;
   text-decoration: inherit;
 }
-a:hover { opacity: 0.9; }
+a:hover { color: var(--white) !important; opacity: 0.85; }
+/* Focus states keep brand accent */
+a:focus, a:focus-visible { color: var(--brand) !important; outline: 3px solid var(--brand); outline-offset: 2px; }
 
 body {
   margin: 0;
@@ -48,13 +50,15 @@ h1 {
 }
 .btn-primary:hover { filter: brightness(0.95); }
 .btn-outline-primary {
-  color: var(--brand) !important;
+  color: var(--white) !important;
   border-color: var(--brand) !important;
 }
 .btn-outline-primary:hover {
   background-color: var(--brand) !important;
   color: var(--white) !important;
 }
+/* Button focus uses brand */
+.btn:focus, .btn:focus-visible { outline: 3px solid var(--brand) !important; outline-offset: 2px; }
 
 /* Ensure cards and nav use the white/black base */
 .bg-white { background-color: var(--black) !important; }
@@ -66,8 +70,8 @@ h1 {
 .border, .border-bottom, .border-top, .border-start, .border-end { border-color: rgba(255,255,255,0.12) !important; }
 
 /* Cards */
-.card { background-color: var(--black) !important; color: var(--white) !important; }
-.card-header, .card-footer { background-color: var(--black) !important; border-color: rgba(255,255,255,0.12) !important; }
+.card { background-color: var(--brand) !important; color: var(--white) !important; border: none !important; }
+.card-header, .card-footer { background-color: var(--brand) !important; color: var(--white) !important; border: none !important; }
 
 /* Inputs */
 .form-control, .form-select, .form-check-input, .input-group-text {
@@ -110,6 +114,7 @@ h1 {
 .nav-link { color: var(--white) !important; }
 .nav-link:hover { color: var(--white) !important; background-color: #111111 !important; }
 .nav-link.active { color: var(--brand) !important; }
+.nav-link:focus, .nav-link:focus-visible { color: var(--brand) !important; outline: 3px solid var(--brand); outline-offset: 2px; }
 
 /* Header bar */
 header.bg-white { background-color: var(--black) !important; color: var(--white) !important; }

@@ -39,7 +39,7 @@ export default function Layout() {
 
       <div className="flex-grow-1">
         <Header />
-        <main className="p-4">{renderContent()}</main>
+        <main className="p-4" style={{ background: "linear-gradient(180deg, #A00000 0%, #000000 100%)" }}>{renderContent()}</main>
       </div>
     </div>
   );
@@ -75,10 +75,10 @@ function Header() {
   }, []);
 
   return (
-    <header className="bg-dark d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
+    <header className="bg-dark text-white d-flex align-items-center justify-content-between px-4 py-3 border-bottom sticky-top">
       <div>
         <h4 className="m-0 fw-bold">Gerant Fast Resto</h4>
-        <small className="text-muted">Bonjour {me?.nom || ""}{!me?.nom ? "" : ","} bienvenue{me?.role ? ` • ${me.role}` : ""} !</small>
+        <small className="text-white">Bonjour {me?.nom || ""}{!me?.nom ? "" : ","} bienvenue{me?.role ? ` • ${me.role}` : ""} !</small>
       </div>
       <div className="d-flex align-items-center gap-3 position-relative">
         <input className="form-control" placeholder="Rechercher" style={{ width: 260 }} />
@@ -108,10 +108,10 @@ function Header() {
 
         {open && (
           <div
-            className="position-absolute end-0 mt-2 bg-dark border rounded-3 shadow-sm"
+            className="position-absolute end-0 mt-2 bg-dark text-white border rounded-3 shadow-sm"
             style={{ top: "100%", minWidth: 180 }}
           >
-            <button className="dropdown-item w-100 text-start py-2" onClick={handleLogout}>
+            <button className="dropdown-item w-100 text-start py-2 text-white" onClick={handleLogout}>
               Se déconnecter
             </button>
           </div>

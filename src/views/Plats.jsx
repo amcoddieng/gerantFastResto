@@ -100,44 +100,39 @@ export default function Plats() {
           {plats.map((plat) => (
             <div key={plat._id} className="col-sm-6 col-lg-4 mb-4">
               <div
-                className="card h-100 shadow-sm border-0"
+                className="card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white"
                 role="button"
                 style={{ cursor: "pointer" }}
                 data-bs-toggle="modal"
                 data-bs-target="#modalPlatDetails"
                 onClick={() => { window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }}
               >
-                {plat.image ? (
-                  <img
-                    src={plat.image}
-                    alt={plat.nom}
-                    className="card-img-top"
-                    style={{ height: 160, objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    className="bg-light d-flex align-items-center justify-content-center"
-                    style={{ height: 160 }}
-                  >
-                    <span className="text-muted">Pas d'image</span>
-                  </div>
-                )}
-
-                <div className="card-body d-flex flex-column">
-                  <div className="d-flex justify-content-between align-items-start mb-1">
-                    <h6 className="card-title mb-0">{plat.nom}</h6>
-                    <div className="d-flex gap-2 align-items-center">
-                      {/* <span className="badge text-bg-info">Qté: {Number(plat.quantite ?? plat.qte ?? 0)}</span> */}
-                      <span className="badge text-bg-secondary">{plat.prix} CFA</span>
+                <div className="position-relative" style={{ height: 220 }}>
+                  {plat.image ? (
+                    <img
+                      src={plat.image}
+                      alt={plat.nom}
+                      className="w-100 h-100"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center">
+                      <span className="text-white-50">Pas d'image</span>
                     </div>
-                  </div>
-                  {/* <p className="card-text text-muted small flex-grow-1">{plat.description}</p> */}
-                  <div className="d-flex justify-content-between align-items-center">
+                  )}
+                  <div className="position-absolute top-0 start-0 m-2">
                     <span className={`badge ${plat.disponible ? "text-bg-success" : "text-bg-danger"}`}>
                       {plat.disponible ? "Disponible" : "Indisponible"}
                     </span>
                   </div>
+                  <div className="position-absolute top-0 end-0 m-2">
+                    <span className="badge rounded-pill text-bg-success">{plat.prix} CFA</span>
+                  </div>
+                  <div className="position-absolute bottom-0 start-0 end-0 p-2" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.7) 100%)" }}>
+                    <h6 className="m-0 text-white text-truncate" title={plat.nom}>{plat.nom}</h6>
+                  </div>
                 </div>
+
               </div>
             </div>
           ))}
@@ -361,7 +356,7 @@ function CategoryManagerModal() {
 }
 
 function PlatDetailsModal({ onChanged }) {
-  const [form, setForm] = useState({ _id: null, nom: "", description: "", prix: 0, quantite: 0, disponible: true, image: "" });
+  const [form, setForm] = useState({ _id: null, nom: "", description: "", prix: 0, quantite: 0, disponible: true, image: "", imageFile: null, imagePreview: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -379,6 +374,8 @@ function PlatDetailsModal({ onChanged }) {
         quantite: Number(p.quantite ?? p.qte) || 0,
         disponible: typeof p.disponible === 'boolean' ? p.disponible : true,
         image: p.image || "",
+        imageFile: null,
+        imagePreview: p.image || "",
       });
     };
 
@@ -397,9 +394,11 @@ function PlatDetailsModal({ onChanged }) {
           quantite: Number(data.quantite ?? data.qte) || 0,
           disponible: typeof data.disponible === 'boolean' ? data.disponible : true,
           image: data.image || "",
+          imageFile: null,
+          imagePreview: data.image || "",
         });
       } catch (_) {
-        setForm({ _id: p._id, nom: p.nom || "", description: p.description || "", prix: Number(p.prix) || 0, quantite: Number(p.quantite ?? p.qte) || 0, disponible: !!p.disponible, image: p.image || "" });
+        setForm({ _id: p._id, nom: p.nom || "", description: p.description || "", prix: Number(p.prix) || 0, quantite: Number(p.quantite ?? p.qte) || 0, disponible: !!p.disponible, image: p.image || "", imageFile: null, imagePreview: p.image || "" });
       }
     };
     el.addEventListener("shown.bs.modal", onShow);
@@ -421,6 +420,8 @@ function PlatDetailsModal({ onChanged }) {
         quantite: Math.max(0, Number(form.quantite) || 0),
         qte: Math.max(0, Number(form.quantite) || 0),
         disponible: !!form.disponible,
+        image: form.image,
+        imageFile: form.imageFile || undefined,
       });
       onChanged && onChanged();
       const closeBtn = document.querySelector('#modalPlatDetails [data-bs-dismiss="modal"]');
@@ -464,6 +465,29 @@ function PlatDetailsModal({ onChanged }) {
           </div>
           <div className="modal-body">
             {error && <div className="alert alert-danger">{error}</div>}
+            <div className="mb-3 text-center">
+              {form.imagePreview ? (
+                <img src={form.imagePreview} alt="aperçu" style={{ maxHeight: 180, objectFit: "cover" }} className="img-fluid rounded" />
+              ) : (
+                <div className="bg-light d-flex align-items-center justify-content-center rounded" style={{ height: 180 }}>
+                  <span className="text-muted">Pas d'image</span>
+                </div>
+              )}
+              <div className="mt-2 d-flex gap-2 justify-content-center">
+                <label className="btn btn-sm btn-outline-secondary mb-0">
+                  Changer la photo
+                  <input type="file" accept="image/*" hidden onChange={(e) => {
+                    const f = e.target.files && e.target.files[0];
+                    if (!f) return;
+                    const url = URL.createObjectURL(f);
+                    setForm((prev) => ({ ...prev, imageFile: f, imagePreview: url }));
+                  }} />
+                </label>
+                {form.imagePreview && (
+                  <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setForm((prev) => ({ ...prev, imageFile: null, imagePreview: "", image: "" }))}>Retirer</button>
+                )}
+              </div>
+            </div>
             <div className="mb-3">
               <label className="form-label">Nom</label>
               <input className="form-control" value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} />

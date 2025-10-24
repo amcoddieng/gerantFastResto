@@ -154,7 +154,7 @@ export default function Tables() {
         <div className="row">
           {items.map((t) => (
             <div key={t._id} className="col-sm-6 col-lg-4 col-xxl-3 mb-3">
-              <div className="card h-100 shadow-sm border-0">
+              <div className="card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white">
                 <div className="p-3 d-flex justify-content-center">
                   <img
                     src={qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0)}
@@ -171,14 +171,14 @@ export default function Tables() {
                   </div>
                   <div className="d-flex gap-2 mb-3">
                     <button
-                      className="btn btn-sm btn-outline-dark"
+                      className="btn btn-sm btn-outline-light rounded-pill px-3"
                       onClick={() => handlePrint(qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0), `Table ${t.numero ?? t._id}`)}
                     >
                       Imprimer QR
                     </button>
                   {/* </div> */}
                   {/* <div className="d-flex gap-2 mt-auto"> */}
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => handleToggle(t._id)}>
+                    <button className="btn btn-sm btn-outline-secondary rounded-pill px-3" onClick={() => handleToggle(t._id)}>
                       Basculer état
                     </button>
                     {/* <button
@@ -189,7 +189,7 @@ export default function Tables() {
                     >
                       Modifier
                     </button> */}
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(t._id)}>
+                    <button className="btn btn-sm btn-outline-danger rounded-pill px-3" onClick={() => handleDelete(t._id)}>
                       Supprimer
                     </button>
                   </div>

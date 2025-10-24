@@ -66,7 +66,7 @@ export default function Commandes() {
   };
 
   return (
-    <Section title="Commandes">
+    <Section title="Commandes" style={{ background: "linear-gradient(180deg, #A00000 0%, #000000 100%)" }}>
       {/* Toolbar */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div className="d-flex align-items-center gap-2">
@@ -110,24 +110,24 @@ export default function Commandes() {
             const st = statusStyle(c.statut);
             return (
               <div key={c._id} className="col-sm-6 col-lg-4">
-                <div className={`card h-100 shadow-sm border-2 ${st.border}`}>
+                <div className={`card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white ${st.border}`}>
                   <div className={`card-header d-flex justify-content-between align-items-start ${st.header}`}>
                     <div>
                       <div className={`small ${st.text}`}>#{String(c._id).slice(-6)}</div>
                       <div className={`small ${st.text}`}>{new Date(c.createdAt).toLocaleString()}</div>
                     </div>
-                    <span className="badge text-bg-light">{c.type}</span>
+                    <span className="badge rounded-pill text-bg-dark border">{c.type}</span>
                   </div>
                   <div className="card-body d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="small">Client: <span className="text-muted">{c.clientId ?? "—"}</span></div>
-                      <span className="badge text-bg-secondary">{c.montantTotal} CFA</span>
+                      <div className="small">Client: <span className="text-white-50">{c.clientId ?? "—"}</span></div>
+                      <span className="badge rounded-pill text-bg-success">{c.montantTotal} CFA</span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <div className="small">Articles: <strong>{articles}</strong></div>
                       <select
-                        className="form-select form-select-sm"
-                        style={{ width: 170 }}
+                        className="form-select form-select-sm bg-dark text-white border-secondary"
+                        style={{ width: 180 }}
                         value={c.statut}
                         onChange={async (e) => {
                           const nv = e.target.value;
@@ -151,20 +151,20 @@ export default function Commandes() {
                         <option value="livrée">livrée</option>
                       </select>
                     </div>
-                    <div className="mt-2 small text-muted">
+                    <div className="mt-2 small text-white-50">
                       {(c.plats || []).slice(0, 3).map((p: any, idx: number) => (
-                        <div key={idx} className="d-flex justify-content-between border-bottom py-1">
+                        <div key={idx} className="d-flex justify-content-between border-bottom border-secondary py-1">
                           <span className="text-truncate me-2" title={p.platId}>{p.platId}</span>
-                          <span>x{p.quantite}</span>
+                          <span className="badge rounded-pill text-bg-secondary">x{p.quantite}</span>
                         </div>
                       ))}
                       {Array.isArray(c.plats) && c.plats.length > 3 && (
                         <div className="text-end fst-italic">+{c.plats.length - 3} autres…</div>
                       )}
                     </div>
-                    <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
+                    <div className="mt-auto d-flex justify-content-between align-items-center pt-3">
                       <button
-                        className="btn btn-sm btn-outline-primary"
+                        className="btn btn-sm btn-outline-primary rounded-pill px-3"
                         data-bs-toggle="modal"
                         data-bs-target="#modalCommandeDetails"
                         onClick={() => { (window as any).__commande = c; if ((window as any).__prefillCommande) (window as any).__prefillCommande(c); }}
@@ -172,7 +172,7 @@ export default function Commandes() {
                         Détails
                       </button>
                       <button
-                        className="btn btn-sm btn-outline-danger"
+                        className="btn btn-sm btn-outline-danger rounded-pill px-3"
                         onClick={async () => {
                           if (!confirm("Supprimer cette commande ?")) return;
                           try {
