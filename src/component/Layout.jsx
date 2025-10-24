@@ -11,6 +11,24 @@ import { getMe } from "../services/api_users.jsx";
 
 export default function Layout() {
   const [activeKey, setActiveKey] = useState("overview");
+  const [hasUnseen, setHasUnseen] = useState(false);
+
+  React.useEffect(() => {
+    const onNew = () => {
+      if (document.hidden || activeKey !== 'notifications') setHasUnseen(true);
+    };
+    const onSeen = () => setHasUnseen(false);
+    window.addEventListener('notif:new', onNew);
+    window.addEventListener('notif:seen', onSeen);
+    return () => {
+      window.removeEventListener('notif:new', onNew);
+      window.removeEventListener('notif:seen', onSeen);
+    };
+  }, [activeKey]);
+
+  React.useEffect(() => {
+    if (activeKey === 'notifications') setHasUnseen(false);
+  }, [activeKey]);
 
   const renderContent = () => {
     switch (activeKey) {
@@ -35,7 +53,7 @@ export default function Layout() {
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh",width:"100vw", background: "#000000" }}>
-      <Sidebar activeKey={activeKey} onSelect={setActiveKey} />
+      <Sidebar activeKey={activeKey} onSelect={(k) => { if (k === 'notifications') setHasUnseen(false); setActiveKey(k); }} hasUnseen={hasUnseen} />
 
       <div className="flex-grow-1">
         <Header />

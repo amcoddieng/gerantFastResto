@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 
-export default function Sidebar({ activeKey = "overview", onSelect = () => {} }) {
+export default function Sidebar({ activeKey = "overview", onSelect = () => {}, hasUnseen = false }) {
   return (
     <div
       className="bg-dark shadow-sm d-flex flex-column justify-content-between"
@@ -92,9 +92,14 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {} })
                 className={`nav-link text-start ps-4 w-100 ${
                   activeKey === "notifications" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
-                onClick={() => onSelect("notifications")}
+                onClick={() => { try { window.dispatchEvent(new Event('notif:seen')); } catch {} onSelect("notifications"); }}
               >
-                Notifications
+                <span className="d-inline-flex align-items-center gap-2">
+                  <span>Notifications</span>
+                  {hasUnseen && activeKey !== 'notifications' && (
+                    <span className="rounded-circle bg-success" style={{ width: 8, height: 8, display: 'inline-block' }}></span>
+                  )}
+                </span>
               </button>
             </li>
             <li className="nav-item">

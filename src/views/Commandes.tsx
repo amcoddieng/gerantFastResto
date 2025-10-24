@@ -60,6 +60,55 @@ export default function Commandes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
+  // Listen to realtime updates via shared Socket.IO connection
+  useEffect(() => {
+    let mounted = true;
+    let ioRef: any = null;
+    let socket: any = null;
+
+    const ensureSocketIo = async (): Promise<any> => {
+      if ((window as any).io) return (window as any).io;
+      await new Promise<void>((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.socket.io/4.5.4/socket.io.min.js";
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error("Socket.IO CDN load failed"));
+        document.head.appendChild(s);
+      });
+      return (window as any).io;
+    };
+
+    (async () => {
+      try {
+        ioRef = await ensureSocketIo();
+        if (!mounted) return;
+        socket = (window as any).__app_socket || ioRef("http://172.20.36.251:4000", {
+          transports: ["websocket", "polling"],
+          withCredentials: true,
+          reconnection: true,
+        });
+        (window as any).__app_socket = socket;
+
+        const onNewCmd = () => {
+          // refresh list, keep current page/limit
+          fetchCommandes();
+        };
+        socket.on("nouvelle_commande", onNewCmd);
+
+        // Cleanup: remove only this listener
+        return () => {
+          try { socket?.off?.("nouvelle_commande", onNewCmd); } catch {}
+        };
+      } catch (_) {
+        // ignore
+      }
+    })();
+
+    return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const applyFilters = () => {
     setPage(1);
     fetchCommandes();
