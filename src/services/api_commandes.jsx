@@ -1,6 +1,10 @@
 import axios from "axios";
 
-const API = import.meta.env.VITE_url_api;
+const API = (import.meta.env.VITE_url_api || "")
+  .toString()
+  .trim()
+  .replace(/^['"]|['"]$/g, "")
+  .replace(/\/+$/, "");
 
 const authHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -20,11 +24,15 @@ export const createCommande = async ({ plats, type }) => {
   }
 };
 
-export const listCommandesGerant = async (params) => {
+export const listCommandesGerant = async (params = {}) => {
   try {
     const res = await axios.get(`${API}/commandes`, {
       headers: authHeader(),
-      params,
+      params: {
+        page: 1,
+        limit: 20,
+        ...params,
+      },
     });
     return res.data;
   } catch (err) {

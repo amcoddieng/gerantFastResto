@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const api_plats = import.meta.env.VITE_url_api;
+const api_plats = (import.meta.env.VITE_url_api || '').replace(/\/+$/, '');
 
-export const listPlats = async ({ page, limit }) => {
+export const listPlats = async ({ page = 1, limit = 20 }) => {
     try {
         const response = await axios.get(`${api_plats}/plats`, {
             params: { page, limit },
@@ -12,7 +12,7 @@ export const listPlats = async ({ page, limit }) => {
     } catch (err) {
         // console.log(err);
         console.error("Erreur lors de la récupération des plats :", err.response?.data || err.message);
-        return err.response?.data?.error || "Erreur lors de la récupération des plats";
+        throw err.response?.data?.error || "Erreur lors de la récupération des plats";
     }
 };
 // notre api prend un token dans le header

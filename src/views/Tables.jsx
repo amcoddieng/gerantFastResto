@@ -7,6 +7,18 @@ import {
   updateTable,
   markTableAsAvailable,
 } from "../services/api_tables.jsx";
+const guestBase = (import.meta.env.VITE_guest_origin || "")
+  .toString()
+  .trim()
+  .replace(/^['"]|['"]$/g, "")
+  .replace(/\/+$/, "");
+
+const fallbackGuestOrigin = "http://localhost:5173";
+const buildGuestUrl = (numeroOrId) => {
+  const origin = guestBase || fallbackGuestOrigin;
+  const id = String(numeroOrId ?? "");
+  return `${origin}/t/${encodeURIComponent(id)}`;
+};
 
 export default function Tables() {
   const [items, setItems] = useState([]);
@@ -157,7 +169,7 @@ export default function Tables() {
               <div className="card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white">
                 <div className="p-3 d-flex justify-content-center">
                   <img
-                    src={qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0)}
+                    src={qrSrc(buildGuestUrl(t.numero ?? t._id), qrSeeds[t._id] || 0)}
                     alt={`QR Table ${t.numero ?? t._id}`}
                     style={{ width: 160, height: 160 }}
                   />
@@ -172,7 +184,7 @@ export default function Tables() {
                   <div className="d-flex gap-2 mb-3">
                     <button
                       className="btn btn-sm btn-outline-light rounded-pill px-3"
-                      onClick={() => handlePrint(qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0), `Table ${t.numero ?? t._id}`)}
+                      onClick={() => handlePrint(qrSrc(buildGuestUrl(t.numero ?? t._id), qrSeeds[t._id] || 0), `Table ${t.numero ?? t._id}`)}
                     >
                       Imprimer QR
                     </button>

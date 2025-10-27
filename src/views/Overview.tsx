@@ -21,11 +21,11 @@ export default function Overview() {
 
       const results = await Promise.allSettled([
         listCommandesGerant(undefined as any),
-        listPlats({ page: 1, limit: 1_000_000 } as any),
-        listCategories({ page: 1, limit: 1_000_000 } as any),
-        listTables({ page: 1, limit: 1_000_000 } as any),
-        listCommandesGerant({ from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10), statut: 'livree', page: 1, limit: 1_000_000 } as any),
-        listCommandesGerant({ statut: 'livree', page: 1, limit: 1_000_000 } as any),
+        listPlats({ page: 1, limit: 100 } as any),
+        listCategories({ page: 1, limit: 100 } as any),
+        listTables({ page: 1, limit: 100 } as any),
+        listCommandesGerant({ from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10), statut: 'livrée', page: 1, limit: 100 } as any),
+        listCommandesGerant({ statut: 'livrée', page: 1, limit: 100 } as any),
       ]);
 
       const [rCmd, rPlats, rCats, rTables, rToday, rAllLivree] = results;

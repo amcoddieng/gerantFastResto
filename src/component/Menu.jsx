@@ -16,7 +16,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {}, h
             style={{ width: "32px", height: "32px" }}
           ></div>
           {/* <h4 className="fw-bold m-0 text-dark">FastResto</h4> */}
-          <img src="../../public/WhatsApp Image 2025-10-20 at 17.05.35_a7d0d7ad.jpg" height={50} width={100}/>
+          <img src="/WhatsApp Image 2025-10-20 at 17.05.35_a7d0d7ad.jpg" height={50} width={100} alt="logo"/>
         </div>
 
         {/* Menu principal */}

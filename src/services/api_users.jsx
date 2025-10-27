@@ -1,6 +1,10 @@
 import axios from "axios";
 
-const API = import.meta.env.VITE_url_api;
+const API = (import.meta.env.VITE_url_api || "")
+  .toString()
+  .trim()
+  .replace(/^['"]|['"]$/g, "")
+  .replace(/\/+$/, "");
 
 const authHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,

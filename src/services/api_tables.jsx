@@ -1,11 +1,15 @@
 import axios from "axios";
 
-const api_tables = import.meta.env.VITE_url_api;
+const api_tables = (import.meta.env.VITE_url_api || "")
+  .toString()
+  .trim()
+  .replace(/^['"]|['"]$/g, "")
+  .replace(/\/+$/, "");
 
-export const listTables = async ({ page, limit }) => {
+export const listTables = async ({ page = 1, limit = 20 } = {}) => {
     try {
         const response = await axios.get(`${api_tables}/tables`, {
-            // params: { page, limit },
+            params: { page, limit },
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -13,9 +17,8 @@ export const listTables = async ({ page, limit }) => {
         // console.log(response.data);
         return response.data;
     } catch (err) {
-        console.log("aaaaaaaaaa",err);
         console.error("Erreur lors de la récupération des tables :", err.response?.data || err.message);
-        return err.response?.data?.error || "Erreur lors de la récupération des tables";
+        throw err.response?.data?.error || "Erreur lors de la récupération des tables";
     }
 };
 // notre api prend un token dans le header

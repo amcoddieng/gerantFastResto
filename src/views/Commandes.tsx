@@ -6,6 +6,7 @@ import {
   setStatut,
   deleteCommande,
 } from "../services/api_commandes.jsx";
+import { initSocket } from "../services/socket";
 
 export default function Commandes() {
   const [items, setItems] = useState<any[]>([]);
@@ -60,52 +61,12 @@ export default function Commandes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
-  // Listen to realtime updates via shared Socket.IO connection
+  // Realtime updates: rely on global notif event dispatched by services/socket
   useEffect(() => {
-    let mounted = true;
-    let ioRef: any = null;
-    let socket: any = null;
-
-    const ensureSocketIo = async (): Promise<any> => {
-      if ((window as any).io) return (window as any).io;
-      await new Promise<void>((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.socket.io/4.5.4/socket.io.min.js";
-        s.async = true;
-        s.onload = () => resolve();
-        s.onerror = () => reject(new Error("Socket.IO CDN load failed"));
-        document.head.appendChild(s);
-      });
-      return (window as any).io;
-    };
-
-    (async () => {
-      try {
-        ioRef = await ensureSocketIo();
-        if (!mounted) return;
-        socket = (window as any).__app_socket || ioRef("http://172.20.36.251:4000", {
-          transports: ["websocket", "polling"],
-          withCredentials: true,
-          reconnection: true,
-        });
-        (window as any).__app_socket = socket;
-
-        const onNewCmd = () => {
-          // refresh list, keep current page/limit
-          fetchCommandes();
-        };
-        socket.on("nouvelle_commande", onNewCmd);
-
-        // Cleanup: remove only this listener
-        return () => {
-          try { socket?.off?.("nouvelle_commande", onNewCmd); } catch {}
-        };
-      } catch (_) {
-        // ignore
-      }
-    })();
-
-    return () => { mounted = false; };
+    initSocket();
+    const onNew = () => { fetchCommandes(); };
+    window.addEventListener('notif:new', onNew);
+    return () => { window.removeEventListener('notif:new', onNew); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -122,8 +83,7 @@ export default function Commandes() {
           <select className="form-select form-select-sm" style={{ width: 160 }} value={statut} onChange={(e) => setStatutFilter(e.target.value)}>
             <option value="">Tous statuts</option>
             <option value="en attente">En attente</option>
-            <option value="valider">Validée</option>
-            <option value="invalider">Invalidée</option>
+            <option value="invalidée">Invalidée</option>
             <option value="en préparation">En préparation</option>
             <option value="prête">Prête</option>
             <option value="livrée">Livrée</option>
@@ -179,12 +139,15 @@ export default function Commandes() {
                         style={{ width: 180 }}
                         value={c.statut}
                         onChange={async (e) => {
-                          const nv = e.target.value;
+                          const nv0 = e.target.value;
+                          const nv = nv0 === 'invalider' ? 'invalidée' : nv0;
+                          if (nv === 'invalidée' && !confirm('Invalider cette commande ?')) return;
                           setStatusModal({ show: true, loading: true, message: "Changement du statut...", error: "" });
                           try {
                             await setStatut(c._id, nv);
                             await fetchCommandes();
-                            setStatusModal({ show: true, loading: false, message: "Statut mis à jour avec succès", error: "" });
+                            const okMsg = nv === 'invalidée' ? 'Commande invalidée' : 'Statut mis à jour avec succès';
+                            setStatusModal({ show: true, loading: false, message: okMsg, error: "" });
                             setTimeout(() => setStatusModal({ show: false, loading: false, message: "", error: "" }), 900);
                           } catch (err: any) {
                             const msg = typeof err === "string" ? err : (err?.message || "Échec de la mise à jour");
@@ -193,20 +156,22 @@ export default function Commandes() {
                         }}
                       >
                         <option value="en attente">en attente</option>
-                        <option value="valider">valider</option>
-                        <option value="invalider">invalider</option>
+                        <option value="invalidée">invalider</option>
                         <option value="en préparation">en préparation</option>
                         <option value="prête">prête</option>
                         <option value="livrée">livrée</option>
                       </select>
                     </div>
                     <div className="mt-2 small text-white-50">
-                      {(c.plats || []).slice(0, 3).map((p: any, idx: number) => (
-                        <div key={idx} className="d-flex justify-content-between border-bottom border-secondary py-1">
-                          <span className="text-truncate me-2" title={p.platId}>{p.platId}</span>
-                          <span className="badge rounded-pill text-bg-secondary">x{p.quantite}</span>
-                        </div>
-                      ))}
+                      {(c.plats || []).slice(0, 3).map((p: any, idx: number) => {
+                        const label = (p && p.platId && typeof p.platId === 'object') ? (p.platId.nom || p.platId._id || '') : String(p?.platId || '');
+                        return (
+                          <div key={idx} className="d-flex justify-content-between border-bottom border-secondary py-1">
+                            <span className="text-truncate me-2" title={label}>{label}</span>
+                            <span className="badge rounded-pill text-bg-secondary">x{p.quantite}</span>
+                          </div>
+                        );
+                      })}
                       {Array.isArray(c.plats) && c.plats.length > 3 && (
                         <div className="text-end fst-italic">+{c.plats.length - 3} autres…</div>
                       )}
@@ -346,12 +311,15 @@ function CommandeDetailsModal({ onRefresh }: { onRefresh: () => void }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {(commande.plats || []).map((p: any, idx: number) => (
-                        <tr key={idx}>
-                          <td className="small">{p.platId}</td>
-                          <td className="text-end">{p.quantite}</td>
-                        </tr>
-                      ))}
+                      {(commande.plats || []).map((p: any, idx: number) => {
+                        const label = (p && p.platId && typeof p.platId === 'object') ? (p.platId.nom || p.platId._id || '') : String(p?.platId || '');
+                        return (
+                          <tr key={idx}>
+                            <td className="small">{label}</td>
+                            <td className="text-end">{p.quantite}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

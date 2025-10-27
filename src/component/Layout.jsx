@@ -8,10 +8,15 @@ import Notifications from "../views/Notifications.tsx";
 import Settings from "../views/Settings.jsx";
 import Commandes from "../views/Commandes.tsx";
 import { getMe } from "../services/api_users.jsx";
+import { initSocket } from "../services/socket";
 
 export default function Layout() {
   const [activeKey, setActiveKey] = useState("overview");
   const [hasUnseen, setHasUnseen] = useState(false);
+
+  React.useEffect(() => {
+    initSocket();
+  }, []);
 
   React.useEffect(() => {
     const onNew = () => {
@@ -70,7 +75,7 @@ function Header() {
   const handleLogout = () => {
     try {
       localStorage.removeItem("token");
-    } catch (_) {}
+    } catch { void 0; }
     window.dispatchEvent(new Event("logout"));
     setOpen(false);
   };
@@ -84,7 +89,7 @@ function Header() {
       } catch (e) {
         // Ne déconnecte que si non autorisé; sinon, on ignore l'erreur de profil
         if (e === "Unauthorized" || (e && e.status === 401)) {
-          try { localStorage.removeItem("token"); } catch (_) {}
+          try { localStorage.removeItem("token"); } catch { void 0; }
           window.dispatchEvent(new Event("logout"));
         }
       }

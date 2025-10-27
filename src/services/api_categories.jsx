@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const api_categories = import.meta.env.VITE_url_api;
+const api_categories = (import.meta.env.VITE_url_api || "").trim().replace(/^['"]|['"]$/g, "").replace(/\/+$/, "");
 
 export const listCategories = async ({ page = 1, limit = 20, active, search } = {}) => {
   const params = { page, limit };
@@ -16,7 +16,7 @@ export const listCategories = async ({ page = 1, limit = 20, active, search } = 
     return res.data;
   } catch (err) {
     console.error("Erreur lors du chargement des catégories :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors du chargement des catégories";
+    throw err.response?.data?.error || "Erreur lors du chargement des catégories";
   }
 };
 
@@ -30,7 +30,7 @@ export const getCategory = async (id) => {
     return res.data;
   } catch (err) {
     console.error("Erreur lors de la récupération de la catégorie :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors de la récupération de la catégorie";
+    throw err.response?.data?.error || "Erreur lors de la récupération de la catégorie";
   }
 };
 
@@ -44,7 +44,7 @@ export const createCategory = async (payload) => {
     return res.data;
   } catch (err) {
     console.error("Erreur lors de la création de la catégorie :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors de la création de la catégorie";
+    throw err.response?.data?.error || "Erreur lors de la création de la catégorie";
   }
 };
 
@@ -58,7 +58,7 @@ export const updateCategory = async (id, payload) => {
     return res.data;
   } catch (err) {
     console.error("Erreur lors de la mise à jour de la catégorie :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors de la mise à jour de la catégorie";
+    throw err.response?.data?.error || "Erreur lors de la mise à jour de la catégorie";
   }
 };
 
@@ -76,7 +76,7 @@ export const toggleCategoryActive = async (id, active) => {
     return res.data;
   } catch (err) {
     console.error("Erreur lors de l'activation de la catégorie :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors de l'activation de la catégorie";
+    throw err.response?.data?.error || "Erreur lors de l'activation de la catégorie";
   }
 };
 
@@ -90,6 +90,6 @@ export const deleteCategory = async (id) => {
     return res.data;
   } catch (err) {
     console.error("Erreur lors de la suppression de la catégorie :", err.response?.data || err.message);
-    return err.response?.data?.error || "Erreur lors de la suppression de la catégorie";
+    throw err.response?.data?.error || "Erreur lors de la suppression de la catégorie";
   }
 };

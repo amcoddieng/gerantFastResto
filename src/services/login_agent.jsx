@@ -1,7 +1,11 @@
 
 import axios from "axios";
 
-const api_connexion_agent = import.meta.env.VITE_url_api;
+const api_connexion_agent = (import.meta.env.VITE_url_api || "")
+  .toString()
+  .trim()
+  .replace(/^['"]|['"]$/g, "")
+  .replace(/\/+$/, "");
 
     // console.log("dieng ",api_connexion_agent)
 export const connect = async (email, motDePasse) => {
