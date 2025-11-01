@@ -83,7 +83,9 @@ export default function Commandes() {
       try {
         ioRef = await ensureSocketIo();
         if (!mounted) return;
-        socket = (window as any).__app_socket || ioRef("http://172.20.36.251:4000", {
+        const raw = (import.meta as any).env.VITE_url_api || 'http://localhost:4000/api/v1';
+        const base = (raw.endsWith('/api/v1') ? raw.slice(0, -7) : raw.replace(/\/$/, ''));
+        socket = (window as any).__app_socket || ioRef(base, {
           transports: ["websocket", "polling"],
           withCredentials: true,
           reconnection: true,
@@ -93,6 +95,7 @@ export default function Commandes() {
         const onNewCmd = () => {
           // refresh list, keep current page/limit
           fetchCommandes();
+          try { window.dispatchEvent(new Event('notif:new')); } catch (_) {}
         };
         socket.on("nouvelle_commande", onNewCmd);
 
@@ -115,14 +118,13 @@ export default function Commandes() {
   };
 
   return (
-    <Section title="Commandes" style={{ background: "linear-gradient(180deg, #A00000 0%, #000000 100%)" }}>
+    <Section title="Commande" style={{ background: "#000000" }}>
       {/* Toolbar */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div className="d-flex align-items-center gap-2">
           <select className="form-select form-select-sm" style={{ width: 160 }} value={statut} onChange={(e) => setStatutFilter(e.target.value)}>
             <option value="">Tous statuts</option>
             <option value="en attente">En attente</option>
-            <option value="valider">Validée</option>
             <option value="invalider">Invalidée</option>
             <option value="en préparation">En préparation</option>
             <option value="prête">Prête</option>
@@ -134,8 +136,14 @@ export default function Commandes() {
             <option value="à emporter">À emporter</option>
             <option value="livraison">Livraison</option>
           </select>
-          <input type="date" className="form-control form-control-sm" style={{ width: 160 }} value={from} onChange={(e) => setFrom(e.target.value)} />
-          <input type="date" className="form-control form-control-sm" style={{ width: 160 }} value={to} onChange={(e) => setTo(e.target.value)} />
+          <div className="input-group input-group-sm" style={{ width: 200 }}>
+            <span className="input-group-text bg-dark border-0 text-white-50">Du</span>
+            <input type="date" className="form-control bg-dark border-0 text-white" aria-label="Du" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </div>
+          <div className="input-group input-group-sm" style={{ width: 200 }}>
+            <span className="input-group-text bg-dark border-0 text-white-50">Au</span>
+            <input type="date" className="form-control bg-dark border-0 text-white" aria-label="Au" value={to} onChange={(e) => setTo(e.target.value)} />
+          </div>
           <button className="btn btn-sm btn-outline-secondary" onClick={applyFilters}>Filtrer</button>
         </div>
         <div className="d-flex align-items-center gap-2">
@@ -159,21 +167,22 @@ export default function Commandes() {
             const st = statusStyle(c.statut);
             return (
               <div key={c._id} className="col-sm-6 col-lg-4">
-                <div className={`card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white ${st.border}`}>
-                  <div className={`card-header d-flex justify-content-between align-items-start ${st.header}`}>
+                <div className="card h-100 shadow rounded-4 bg-dark text-white position-relative"
+                     style={{ border: '1px solid #e05555' }}>
+                  <div aria-hidden className="position-absolute" style={{ left: 0, top: 0, bottom: 0, width: 6, background: '#dc3545', borderTopLeftRadius: '0.75rem', borderBottomLeftRadius: '0.75rem', zIndex: 2, pointerEvents: 'none' }} />
+                  <div className="card-header d-flex justify-content-between align-items-start bg-dark border-0">
                     <div>
-                      <div className={`small ${st.text}`}>#{String(c._id).slice(-6)}</div>
-                      <div className={`small ${st.text}`}>{new Date(c.createdAt).toLocaleString()}</div>
+                      <div className={`small text-white`}>{new Date(c.createdAt).toLocaleString('fr-FR')}</div>
                     </div>
                     <span className="badge rounded-pill text-bg-dark border">{c.type}</span>
                   </div>
                   <div className="card-body d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="small">Client: <span className="text-white-50">{c.clientId ?? "—"}</span></div>
+                      <div className="small">Client: <span className="text-white">{c.clientId ?? "—"}</span></div>
                       <span className="badge rounded-pill text-bg-success">{c.montantTotal} CFA</span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="small">Articles: <strong>{articles}</strong></div>
+                      <div className="small">Statut</div>
                       <select
                         className="form-select form-select-sm bg-dark text-white border-secondary"
                         style={{ width: 180 }}
@@ -193,17 +202,27 @@ export default function Commandes() {
                         }}
                       >
                         <option value="en attente">en attente</option>
-                        <option value="valider">valider</option>
                         <option value="invalider">invalider</option>
                         <option value="en préparation">en préparation</option>
                         <option value="prête">prête</option>
                         <option value="livrée">livrée</option>
                       </select>
                     </div>
-                    <div className="mt-2 small text-white-50">
+                    <div className="mt-2 small text-white">
                       {(c.plats || []).slice(0, 3).map((p: any, idx: number) => (
                         <div key={idx} className="d-flex justify-content-between border-bottom border-secondary py-1">
-                          <span className="text-truncate me-2" title={p.platId}>{p.platId}</span>
+                          <span
+                            className="text-truncate me-2"
+                            title={
+                              (typeof p.platId === "object" && p.platId)
+                                ? (p.platId.nom || p.platId._id || "")
+                                : String(p.platId)
+                            }
+                          >
+                            {(typeof p.platId === "object" && p.platId)
+                              ? (p.platId.nom || p.platId._id)
+                              : String(p.platId)}
+                          </span>
                           <span className="badge rounded-pill text-bg-secondary">x{p.quantite}</span>
                         </div>
                       ))}
@@ -348,7 +367,11 @@ function CommandeDetailsModal({ onRefresh }: { onRefresh: () => void }) {
                     <tbody>
                       {(commande.plats || []).map((p: any, idx: number) => (
                         <tr key={idx}>
-                          <td className="small">{p.platId}</td>
+                          <td className="small">
+                            {(typeof p.platId === "object" && p.platId)
+                              ? (p.platId.nom || p.platId._id)
+                              : String(p.platId)}
+                          </td>
                           <td className="text-end">{p.quantite}</td>
                         </tr>
                       ))}

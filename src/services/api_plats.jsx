@@ -2,10 +2,13 @@ import axios from "axios";
 
 const api_plats = import.meta.env.VITE_url_api;
 
-export const listPlats = async ({ page, limit }) => {
+export const listPlats = async (params = {}) => {
     try {
         const response = await axios.get(`${api_plats}/plats`, {
-            params: { page, limit },
+            params,
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
         });
         // console.log(response.data);
         return response.data;

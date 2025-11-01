@@ -7,6 +7,7 @@ export default function Settings() {
   const [me, setMe] = React.useState(null);
   const [form, setForm] = React.useState({ nom: "", telephone: "", adresse: "", photoUrl: "" });
   const [photoFile, setPhotoFile] = React.useState(null);
+  const [photoPreview, setPhotoPreview] = React.useState("");
   const [pwd, setPwd] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [saveErr, setSaveErr] = React.useState("");
@@ -33,13 +34,21 @@ export default function Settings() {
           adresse: data?.adresse || "",
           photoUrl: data?.photo || "",
         });
+        setPhotoPreview(data?.photo || "");
       } catch (_) {}
     })();
     return () => { mounted = false; };
   }, []);
 
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  const onFile = (e) => setPhotoFile(e.target.files?.[0] || null);
+  const onFile = (e) => {
+    const f = e.target.files?.[0] || null;
+    setPhotoFile(f);
+    if (f) {
+      const url = URL.createObjectURL(f);
+      setPhotoPreview(url);
+    }
+  };
 
   const onSubmitProfile = async (e) => {
     e.preventDefault();
@@ -47,35 +56,32 @@ export default function Settings() {
     setSaveErr("");
     setSaveOk(false);
     try {
-      if (!pwd) throw "Mot de passe requis";
-      // Validate current password by logging in (frontend check only)
-      const res = await connect(me?.email, pwd);
-      if (!res || typeof res !== "object" || !res.token) throw "Mot de passe actuel invalide";
-
+      const normalizeTel = (t) => (t || "").trim().replace(/[^\d+]/g, "").replace(/(?!^)+/g, "");
       let payload;
       if (photoFile) {
         const fd = new FormData();
         if (form.nom) fd.append("nom", form.nom);
-        if (form.telephone) fd.append("telephone", form.telephone);
+        if (form.telephone) fd.append("telephone", normalizeTel(form.telephone));
         if (typeof form.adresse !== "undefined") fd.append("adresse", form.adresse);
-        if (form.photoUrl) fd.append("photo", form.photoUrl);
+        // N'ENVOIE PAS de champ 'photo' string quand on envoie un fichier
         fd.append("photo", photoFile);
         payload = fd;
       } else {
         const body = {};
         if (form.nom) body.nom = form.nom;
-        if (form.telephone) body.telephone = form.telephone;
+        if (form.telephone) body.telephone = normalizeTel(form.telephone);
         if (typeof form.adresse !== "undefined") body.adresse = form.adresse;
-        if (form.photoUrl) body.photo = form.photoUrl;
+        if (typeof form.photoUrl !== "undefined") body.photo = form.photoUrl || ""; // URL data/http ou vide pour retirer
         payload = body;
       }
       const updated = await updateMe(payload);
       setMe(updated);
       setForm((f) => ({ ...f, photoUrl: updated?.photo || f.photoUrl }));
       setPhotoFile(null);
+      setPhotoPreview(updated?.photo || "");
       setPwd("");
       setSaveOk(true);
-      window.dispatchEvent(new Event("profile-updated"));
+      window.dispatchEvent(new Event("profile:updated"));
     } catch (err) {
       setSaveErr(String(err || "Erreur"));
     } finally {
@@ -118,75 +124,69 @@ export default function Settings() {
     }
   };
 
+  // derive API root for avatar preview persisted path
+  const raw = import.meta.env?.VITE_url_api || 'http://localhost:4000/api/v1';
+  const apiRoot = (raw.endsWith('/api/v1') ? raw.slice(0, -7) : raw.replace(/\/$/, ''));
+  const currentAvatar = photoPreview || (form.photoUrl ? `${apiRoot}${form.photoUrl}` : 'https://via.placeholder.com/160x160.png?text=%20');
+
   return (
     <Section title="Paramètres">
       <div className="row g-4">
         <div className="col-12 col-lg-7">
           <form className="row g-3" onSubmit={onSubmitProfile}>
             <div className="col-md-6">
-              <label className="form-label">Nom</label>
-              <input name="nom" className="form-control" value={form.nom} onChange={onChange} />
+              <label className="form-label text-white">Nom</label>
+              <input name="nom" className="form-control bg-dark text-white border-0" value={form.nom} onChange={onChange} />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Téléphone</label>
-              <input name="telephone" className="form-control" value={form.telephone} onChange={onChange} />
+              <label className="form-label text-white">Téléphone</label>
+              <input name="telephone" className="form-control bg-dark text-white border-0" value={form.telephone} onChange={onChange} pattern="^[0-9 +()-]{6,}$" />
             </div>
             <div className="col-md-12">
-              <label className="form-label">Adresse</label>
-              <input name="adresse" className="form-control" value={form.adresse} onChange={onChange} />
+              <label className="form-label text-white">Adresse</label>
+              <input name="adresse" className="form-control bg-dark text-white border-0" value={form.adresse} onChange={onChange} />
             </div>
-            <div className="col-md-6">
-              <label className="form-label">Photo (fichier)</label>
-              <input type="file" accept="image/*" className="form-control" onChange={onFile} />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Photo (URL)</label>
-              <input name="photoUrl" className="form-control" value={form.photoUrl} onChange={onChange} />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Mot de passe actuel</label>
-              <input type="password" className="form-control" value={pwd} onChange={(e) => setPwd(e.target.value)} placeholder="Requis pour valider" />
+            <div className="col-md-12">
+              <label className="form-label text-white">Photo (fichier)</label>
+              <div className="d-flex align-items-center gap-3">
+                <img src={currentAvatar} alt="aperçu" width={80} height={80} className="rounded-circle border" />
+                <div className="d-flex gap-2">
+                  <label className="btn btn-sm btn-outline-secondary mb-0">
+                    Changer
+                    <input type="file" accept="image/*" hidden onChange={onFile} />
+                  </label>
+                  {photoPreview && (
+                    <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => { setPhotoFile(null); setPhotoPreview(""); }}>
+                      Retirer
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="col-12 d-flex align-items-center gap-2">
-              <button type="submit" className="btn btn-primary" disabled={saving || !pwd}>{saving ? "Enregistrement..." : "Enregistrer"}</button>
-              <button type="button" className="btn btn-outline-secondary" onClick={() => setShowPwdModal(true)}>Modifier le mot de passe</button>
+              <button type="submit" className="btn btn-danger" disabled={saving}>{saving ? "Enregistrement..." : "Enregistrer"}</button>
               {saveOk && <span className="text-success">Mis à jour</span>}
               {saveErr && <span className="text-danger">{saveErr}</span>}
             </div>
           </form>
         </div>
 
-        {showPwdModal && (
-          <div className="col-12">
-            <div className="position-fixed top-0 start-0 w-100 h-100" style={{ background:"rgba(0,0,0,0.4)" }} onClick={() => setShowPwdModal(false)} />
-            <div className="position-fixed top-50 start-50 translate-middle bg-white rounded-4 shadow p-4" style={{ minWidth: 360 }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 className="m-0">Modifier le mot de passe</h6>
-                <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowPwdModal(false)}>Fermer</button>
+        <div className="col-12 col-lg-5">
+          <div className="p-3 rounded-3 border bg-dark">
+            <div className="fw-semibold mb-2">Aperçu du profil</div>
+            <div className="d-flex align-items-center gap-3">
+              <img src={currentAvatar} alt="avatar" width={120} height={120} className="rounded-circle border" />
+              <div>
+                <div className="small text-white-50">Nom</div>
+                <div className="fw-semibold">{form.nom || me?.nom || '—'}</div>
+                <div className="small text-white-50 mt-2">Téléphone</div>
+                <div>{form.telephone || me?.telephone || '—'}</div>
+                <div className="small text-white-50 mt-2">Adresse</div>
+                <div className="text-truncate" style={{ maxWidth: 260 }}>{form.adresse || me?.adresse || '—'}</div>
               </div>
-              {pwdStep === "request" ? (
-                <form onSubmit={submitPwdRequest} className="d-flex flex-column gap-2">
-                  <input type="password" className="form-control" placeholder="Nouveau mot de passe" value={nouveau} onChange={(e) => setNouveau(e.target.value)} />
-                  <div className="d-flex align-items-center gap-2">
-                    <button type="submit" className="btn btn-primary" disabled={pwdLoading || !nouveau}>{pwdLoading ? "Envoi..." : "Demander le code"}</button>
-                    {pwdOk && <span className="text-success">Code envoyé</span>}
-                    {pwdError && <span className="text-danger">{pwdError}</span>}
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={submitPwdConfirm} className="d-flex flex-column gap-2">
-                  <input className="form-control" placeholder="Code de confirmation" value={token} onChange={(e) => setToken(e.target.value)} />
-                  <div className="d-flex align-items-center gap-2">
-                    <button type="submit" className="btn btn-success" disabled={pwdLoading || !token}>{pwdLoading ? "Validation..." : "Confirmer"}</button>
-                    <button type="button" className="btn btn-outline-secondary" disabled={pwdLoading} onClick={() => { setPwdStep("request"); setToken(""); setPwdOk(false); setPwdError(""); }}>Retour</button>
-                    {pwdOk && <span className="text-success">Mot de passe mis à jour</span>}
-                    {pwdError && <span className="text-danger">{pwdError}</span>}
-                  </div>
-                </form>
-              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </Section>
   );

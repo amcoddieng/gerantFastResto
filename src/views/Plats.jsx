@@ -18,6 +18,8 @@ export default function Plats() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(9);
   const [total, setTotal] = useState(0);
+  const [cats, setCats] = useState([]);
+  const [activeCat, setActiveCat] = useState(null);
 
   const fetchPlats = async () => {
     setLoading(true);
@@ -35,49 +37,42 @@ export default function Plats() {
     }
   };
 
+  const fetchCats = async () => {
+    try {
+      const res = await listCategories({ active: true, limit: 20 });
+      setCats(res?.items || []);
+    } catch {}
+  };
+
   useEffect(() => {
     fetchPlats();
+    fetchCats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <Section title="Plats">
-      {/* Toolbar */}
+    <Section title="Gestion du Menu">
+      <div className="mb-2 text-white-50">Créez et gérez vos plats et catégories</div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        {/* Actions */}
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-sm btn-outline-secondary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalCategories"
-          >
-            Catégories
-          </button>
-          <button
-            className="btn btn-sm btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalAjoutPlat"
-          >
-            Ajouter un plat
-          </button>
+        <div className="d-flex gap-2">
+          <button className={`btn btn-sm ${activeCat===null?'btn-danger':'btn-outline-secondary'}`} onClick={()=>setActiveCat(null)}>Tous</button>
+          {(cats || []).map((c)=> (
+            <button key={c._id} className={`btn btn-sm ${activeCat===c._id?'btn-danger':'btn-dark'}`} onClick={()=>{ setActiveCat(c._id); }}>{c.nom}</button>
+          ))}
         </div>
-       
-        <small className="text-muted">
-          Page {page} / {totalPages} • {total} au total
-        </small>
+        <div className="d-flex align-items-center gap-2">
+          <button className="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalCategories">+ Nouvelle catégorie</button>
+          <button className="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalAjoutPlat">+ Nouveau plat</button>
+        </div>
+      </div>
+
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <small className="text-muted">Page {page} / {totalPages} • {total} au total</small>
         <div className="d-flex align-items-center gap-2">
           <label className="text-muted">Afficher</label>
-          <select
-            className="form-select form-select-sm"
-            value={limit}
-            onChange={(e) => {
-              setPage(1);
-              setLimit(Number(e.target.value));
-            }}
-            style={{ width: 90 }}
-          >
+          <select className="form-select form-select-sm" value={limit} onChange={(e)=>{ setPage(1); setLimit(Number(e.target.value)); }} style={{ width: 90 }}>
             <option value={6}>6</option>
             <option value={9}>9</option>
             <option value={12}>12</option>
@@ -97,42 +92,36 @@ export default function Plats() {
 
       {!loading && !error && plats.length > 0 && (
         <div className="row">
-          {plats.map((plat) => (
+          {plats
+            .filter(p => !activeCat || String(p.categorieId||p.categorie||p.categoryId||'') === String(activeCat))
+            .map((plat) => (
             <div key={plat._id} className="col-sm-6 col-lg-4 mb-4">
-              <div
-                className="card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white"
-                role="button"
-                style={{ cursor: "pointer" }}
-                data-bs-toggle="modal"
-                data-bs-target="#modalPlatDetails"
-                onClick={() => { window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }}
-              >
-                <div className="position-relative" style={{ height: 220 }}>
+              <div className="card h-100 shadow border-0 rounded-4 bg-dark text-white overflow-hidden">
+                <div className="position-relative" style={{ height: 200 }}>
                   {plat.image ? (
-                    <img
-                      src={plat.image}
-                      alt={plat.nom}
-                      className="w-100 h-100"
-                      style={{ objectFit: "cover" }}
-                    />
+                    <img src={plat.image} alt={plat.nom} className="w-100 h-100" style={{ objectFit: 'cover' }} />
                   ) : (
-                    <div className="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center">
-                      <span className="text-white-50">Pas d'image</span>
-                    </div>
+                    <div className="w-100 h-100 bg-secondary" />
                   )}
-                  <div className="position-absolute top-0 start-0 m-2">
-                    <span className={`badge ${plat.disponible ? "text-bg-success" : "text-bg-danger"}`}>
-                      {plat.disponible ? "Disponible" : "Indisponible"}
-                    </span>
+                </div>
+                <div className="p-3">
+                  <div className="d-flex justify-content-between align-items-start mb-1">
+                    <div className="fw-semibold text-truncate" title={plat.nom}>{plat.nom}</div>
+                    <div className="text-danger fw-bold">{Number(plat.prix||0).toLocaleString()} F CFA</div>
                   </div>
-                  <div className="position-absolute top-0 end-0 m-2">
-                    <span className="badge rounded-pill text-bg-success">{plat.prix} CFA</span>
-                  </div>
-                  <div className="position-absolute bottom-0 start-0 end-0 p-2" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.7) 100%)" }}>
-                    <h6 className="m-0 text-white text-truncate" title={plat.nom}>{plat.nom}</h6>
+                  <div className="text-white-50 small mb-2 text-truncate" title={plat.description}>{plat.description || ''}</div>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className={`badge ${plat.disponible ? 'text-bg-success':'text-bg-secondary'}`}>{plat.disponible ? 'Disponible':'Indisponible'}</span>
+                    <div className="btn-group btn-group-sm">
+                      <button className="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalPlatDetails" onClick={()=>{ window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }} title="Modifier">
+                        ✎
+                      </button>
+                      <button className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalPlatDetails" onClick={()=>{ window.__plat = plat; if (window.__prefillPlat) window.__prefillPlat(plat); }} title="Supprimer">
+                        🗑
+                      </button>
+                    </div>
                   </div>
                 </div>
-
               </div>
             </div>
           ))}
@@ -356,9 +345,11 @@ function CategoryManagerModal() {
 }
 
 function PlatDetailsModal({ onChanged }) {
-  const [form, setForm] = useState({ _id: null, nom: "", description: "", prix: 0, quantite: 0, disponible: true, image: "", imageFile: null, imagePreview: "" });
+  const [form, setForm] = useState({ _id: null, nom: "", description: "", prix: 0, quantite: 0, disponible: true, image: "", imageFile: null, imagePreview: "", categorieId: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [cats, setCats] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(false);
 
   useEffect(() => {
     const el = document.getElementById("modalPlatDetails");
@@ -396,9 +387,22 @@ function PlatDetailsModal({ onChanged }) {
           image: data.image || "",
           imageFile: null,
           imagePreview: data.image || "",
+          categorieId: String(data.categorieId || data.categorie || data.categoryId || ""),
         });
       } catch (_) {
-        setForm({ _id: p._id, nom: p.nom || "", description: p.description || "", prix: Number(p.prix) || 0, quantite: Number(p.quantite ?? p.qte) || 0, disponible: !!p.disponible, image: p.image || "", imageFile: null, imagePreview: p.image || "" });
+        setForm({ _id: p._id, nom: p.nom || "", description: p.description || "", prix: Number(p.prix) || 0, quantite: Number(p.quantite ?? p.qte) || 0, disponible: !!p.disponible, image: p.image || "", imageFile: null, imagePreview: p.image || "", categorieId: String(p.categorieId || p.categorie || p.categoryId || "") });
+      }
+      // fetch categories
+      try {
+        setLoadingCats(true);
+        const res = await listCategories({ active: true, limit: 100 });
+        const items = res?.items || res || [];
+        setCats(items);
+        if (!form.categorieId && items.length > 0) setForm((f)=>({ ...f, categorieId: String(items[0]._id) }));
+      } catch {
+        setCats([]);
+      } finally {
+        setLoadingCats(false);
       }
     };
     el.addEventListener("shown.bs.modal", onShow);
@@ -422,6 +426,7 @@ function PlatDetailsModal({ onChanged }) {
         disponible: !!form.disponible,
         image: form.image,
         imageFile: form.imageFile || undefined,
+        categorieId: form.categorieId || undefined,
       });
       onChanged && onChanged();
       const closeBtn = document.querySelector('#modalPlatDetails [data-bs-dismiss="modal"]');
@@ -495,6 +500,15 @@ function PlatDetailsModal({ onChanged }) {
             <div className="mb-3">
               <label className="form-label">Description</label>
               <textarea className="form-control" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Catégorie</label>
+              <select className="form-select" value={form.categorieId} onChange={(e)=> setForm({ ...form, categorieId: e.target.value })} disabled={loadingCats}>
+                <option value="" disabled>{loadingCats ? 'Chargement...' : 'Sélectionnez une catégorie'}</option>
+                {(cats || []).map((c) => (
+                  <option key={c._id} value={c._id}>{c.nom}</option>
+                ))}
+              </select>
             </div>
             <div className="row g-2">
               <div className="col-6">

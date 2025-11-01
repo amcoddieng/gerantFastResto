@@ -1,29 +1,23 @@
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
+import logoFastResto from "../assets/images/logoFastResto.png";
 
 export default function Sidebar({ activeKey = "overview", onSelect = () => {}, hasUnseen = false }) {
   return (
     <div
       className="bg-dark shadow-sm d-flex flex-column justify-content-between"
-      style={{ width: "260px", minHeight: "100vh" }}
+      style={{ width: "260px", height: "100vh", position: "fixed", top: 0, left: 0, overflow: "hidden", zIndex: 1020 }}
     >
       <div>
         {/* Logo */}
         <div className="p-4 border-bottom d-flex align-items-center">
-          <div
-            className="bg-primary rounded-3 me-2"
-            style={{ width: "32px", height: "32px" }}
-          ></div>
           {/* <h4 className="fw-bold m-0 text-dark">FastResto</h4> */}
-          <img src="../../public/WhatsApp Image 2025-10-20 at 17.05.35_a7d0d7ad.jpg" height={50} width={100}/>
+          <img src={logoFastResto} alt="FastResto" style={{ height: 40, width: 'auto' }} />
         </div>
 
-        {/* Menu principal */}
+        {/* Menu principal (simplifié selon maquette) */}
         <div className="mt-3">
-          <p className="text-white text-uppercase px-4 small fw-bold">
-            Main Menu
-          </p>
           <ul className="nav flex-column">
             <li className="nav-item">
               <button
@@ -44,7 +38,18 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {}, h
                 }`}
                 onClick={() => onSelect("plats")}
               >
-                Plats
+                Menu
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link text-start ps-4 w-100 ${
+                  activeKey === "commandes" ? "active bg-light fw-semibold text-primary" : "text-white"
+                }`}
+                onClick={() => onSelect("commandes")}
+              >
+                Commande
               </button>
             </li>
             <li className="nav-item">
@@ -62,50 +67,6 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {}, h
               <button
                 type="button"
                 className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "commandes" ? "active bg-light fw-semibold text-primary" : "text-white"
-                }`}
-                onClick={() => onSelect("commandes")}
-              >
-                Commandes
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "messages" ? "active bg-light fw-semibold text-primary" : "text-white"
-                }`}
-                onClick={() => onSelect("messages")}
-              >
-                Messages
-              </button>
-            </li>
-          </ul>
-
-          <p className="text-white text-uppercase px-4 small fw-bold mt-4">
-            Others
-          </p>
-          <ul className="nav flex-column mb-4">
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link text-start ps-4 w-100 ${
-                  activeKey === "notifications" ? "active bg-light fw-semibold text-primary" : "text-white"
-                }`}
-                onClick={() => { try { window.dispatchEvent(new Event('notif:seen')); } catch {} onSelect("notifications"); }}
-              >
-                <span className="d-inline-flex align-items-center gap-2">
-                  <span>Notifications</span>
-                  {hasUnseen && activeKey !== 'notifications' && (
-                    <span className="rounded-circle bg-success" style={{ width: 8, height: 8, display: 'inline-block' }}></span>
-                  )}
-                </span>
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link text-start ps-4 w-100 ${
                   activeKey === "settings" ? "active bg-light fw-semibold text-primary" : "text-white"
                 }`}
                 onClick={() => onSelect("settings")}
@@ -117,18 +78,7 @@ export default function Sidebar({ activeKey = "overview", onSelect = () => {}, h
         </div>
       </div>
 
-      {/* Profil */}
-      <div className="border-top p-4 d-flex align-items-center">
-        <img
-          src="https://i.pravatar.cc/40"
-          alt="avatar"
-          className="rounded-circle me-2"
-        />
-        <div>
-          <p className="m-0 fw-semibold">Amadou</p>
-          <small className="text-muted">Admin</small>
-        </div>
-      </div>
+      
     </div>
   );
 }

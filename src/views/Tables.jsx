@@ -16,13 +16,15 @@ export default function Tables() {
   const [limit, setLimit] = useState(8);
   const [total, setTotal] = useState(0);
   const [qrSeeds, setQrSeeds] = useState({});
+  const [etat, setEtat] = useState("");
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
 
-  const qrSrc = (text, seed = 0) =>
-    `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
-      String(text)
-    )}&bgcolor=ffffff&margin=2&format=png&cb=${seed}`;
+  const guestBase = (import.meta.env.VITE_GUEST_BASE_URL || "http://localhost:5173").replace(/\/$/, "");
+  const qrSrc = (text, seed = 0) => {
+    const target = `${guestBase}/t/${encodeURIComponent(String(text))}`;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(target)}&bgcolor=ffffff&margin=2&format=png&cb=${seed}`;
+  };
 
   const fetchTables = async () => {
     setLoading(true);
@@ -113,19 +115,23 @@ export default function Tables() {
     <Section title="Tables">
       {/* Toolbar */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-sm btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalTableForm"
-          >
-            Nouvelle table
-          </button>
-        </div>
+        <div className="d-flex align-items-center gap-2" />
         <small className="text-muted">
           Page {page} / {totalPages} • {total} au total
         </small>
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-3">
+          <select className="form-select form-select-sm bg-dark text-white border-0" style={{ width: 140 }} value={etat} onChange={(e)=>{ setEtat(e.target.value); }}>
+            <option value="">Toutes</option>
+            <option value="libre">Libres</option>
+            <option value="occupee">Occupées</option>
+          </select>
+          <button
+            className="btn btn-sm btn-danger d-flex align-items-center gap-1"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTableForm"
+          >
+            <i className="bi bi-plus-lg" /> Nouvelle table
+          </button>
           <label className="text-muted">Afficher</label>
           <select
             className="form-select form-select-sm"
@@ -152,15 +158,23 @@ export default function Tables() {
 
       {!loading && !error && (
         <div className="row">
-          {items.map((t) => (
+          {items
+            .filter((t)=>{
+              const isLibre = typeof t.statut === 'string' ? t.statut === 'libre' : !!t.disponible;
+              if (!etat) return true;
+              return etat === 'libre' ? isLibre : !isLibre;
+            })
+            .map((t) => (
             <div key={t._id} className="col-sm-6 col-lg-4 col-xxl-3 mb-3">
-              <div className="card h-100 shadow border-2 rounded-4 overflow-hidden bg-dark text-white">
-                <div className="p-3 d-flex justify-content-center">
-                  <img
-                    src={qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0)}
-                    alt={`QR Table ${t.numero ?? t._id}`}
-                    style={{ width: 160, height: 160 }}
-                  />
+              <div className="card h-100 shadow border-0 rounded-4 overflow-hidden bg-dark text-white">
+                <div className="p-4 d-flex justify-content-center">
+                  <div className="bg-light p-2 rounded-3">
+                    <img
+                      src={qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0)}
+                      alt={`QR Table ${t.numero ?? t._id}`}
+                      style={{ width: 160, height: 160 }}
+                    />
+                  </div>
                 </div>
                 <div className="card-body d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-start mb-2">
@@ -170,27 +184,16 @@ export default function Tables() {
                     </span>
                   </div>
                   <div className="d-flex gap-2 mb-3">
-                    <button
-                      className="btn btn-sm btn-outline-light rounded-pill px-3"
-                      onClick={() => handlePrint(qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0), `Table ${t.numero ?? t._id}`)}
-                    >
-                      Imprimer QR
+                    <button className="btn btn-sm btn-outline-light rounded-pill px-3 d-flex align-items-center gap-2" onClick={() => handlePrint(qrSrc(t.numero ?? t._id, qrSeeds[t._id] || 0), `Table ${t.numero ?? t._id}`)}>
+                      <i className="bi bi-printer" /> Imprimer QR
                     </button>
-                  {/* </div> */}
-                  {/* <div className="d-flex gap-2 mt-auto"> */}
-                    <button className="btn btn-sm btn-outline-secondary rounded-pill px-3" onClick={() => handleToggle(t._id)}>
-                      Basculer état
+                    <button className="btn btn-sm btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-2" onClick={() => handleToggle(t._id)}>
+                      <i className="bi bi-toggle2-on" /> Basculer état
                     </button>
-                    {/* <button
-                      className="btn btn-sm btn-outline-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalTableForm"
-                      onClick={() => (window.__editTable = t)}
-                    >
-                      Modifier
-                    </button> */}
-                    <button className="btn btn-sm btn-outline-danger rounded-pill px-3" onClick={() => handleDelete(t._id)}>
-                      Supprimer
+                  </div>
+                  <div className="rounded-3 px-3 py-2 d-flex justify-content-center" style={{ background: '#1c1c1c', border: '1px solid #2a2a2a' }}>
+                    <button className="btn btn-sm text-danger d-flex align-items-center gap-2" onClick={() => handleDelete(t._id)}>
+                      <i className="bi bi-trash" /> Supprimer
                     </button>
                   </div>
                 </div>

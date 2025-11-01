@@ -2,8 +2,10 @@ import axios from "axios";
 
 const api_categories = import.meta.env.VITE_url_api;
 
-export const listCategories = async ({ page = 1, limit = 20, active, search } = {}) => {
-  const params = { page, limit };
+export const listCategories = async ({ page, limit, active, search } = {}) => {
+  const params = {};
+  if (typeof page !== "undefined") params.page = page;
+  if (typeof limit !== "undefined") params.limit = limit;
   if (typeof active !== "undefined") params.active = active;
   if (search) params.search = search;
   try {
